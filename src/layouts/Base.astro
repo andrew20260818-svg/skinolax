@@ -10,7 +10,6 @@ interface Props {
   description?: string;
   key?: string;          // значение data-page; по умолчанию имя файла без .html
   current?: string;      // какой пункт меню подсветить; по умолчанию сама страница
-  specOnly?: boolean;    // страница только для специалистов (data-spec-only)
   metody?: boolean;      // подключить стили и скрипт страниц методик
 }
 
@@ -40,7 +39,7 @@ const current = p.current ?? meta.current ?? p.file;
 {p.metody && <link rel="stylesheet" href="assets/metody.css">}
 {p.metody && <script is:inline src="assets/metody.js" defer></script>}
 </head>
-<body data-page={key} data-spec-only={p.specOnly ? '' : undefined}>
+<body data-page={key}>
 <Header current={current} />
 <main id="main"><slot /></main>
 <Footer />

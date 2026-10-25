@@ -1,9 +1,6 @@
 // Всплывающая рекомендация по выбранной нозологии; без JS карточки ведут на страницу метода
 (function () {
   function open(slug) {
-    // На сайте страницы закрыты шлюзом «Я специалист» (v4.js): окно рекомендации — только после подтверждения
-    var g = document.getElementById('spec-gate');
-    if (g && g.open) { g.addEventListener('close', function () { try { if (sessionStorage.getItem('skinolax-spec') === '1') open(slug); } catch (e) {} }, { once: true }); return; }
     var d = document.getElementById('pop-' + slug);
     if (!d || typeof d.showModal !== 'function') { if (slug) location.href = 'metod-' + slug + '.html'; return; }
     d.showModal();

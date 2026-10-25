@@ -9,9 +9,9 @@ import { INDICATIONS, BY, REC, REC_MB, INSTR, NB } from '../lib/metody';
 const variants = (ss: string[]) => ss.length === 1 ? BY[ss[0]].med : ss.length < 5 ? `${ss.length} варианта в Рекомендациях` : `${ss.length} вариантов в Рекомендациях`;
 ---
 <Base file="specialistam-metody.html" title="СКИНОЛАКС: применение по показаниям" description="Рекомендации по применению покрытия СКИНОЛАКС по показаниям Инструкции 2026."
-  key="metody" current="specialistam.html" specOnly metody>
+  key="metody" current="specialistam.html" metody>
 <section class="page-hero"><div class="wrap"><Crumbs items={[['index.html', 'Главная'], ['specialistam.html', 'Специалистам'], [null, 'Применение по показаниям']]} />
-<p class="eyebrow">Для специалистов</p><h1>Применение по показаниям</h1>
+<p class="eyebrow">Рекомендации 2026</p><h1>Применение по показаниям</h1>
 <p class="lead">Выберите тип раны из показаний Инструкции по применению 2026 года. Откроется рекомендация: варианты применения, условия, режим смены покрытия и противопоказания. Подробности — из документа «Пенополиуретановое покрытие Скинолакс: Рекомендации по применению», 2026 <Src>глава 7, с. 35–67</Src>.</p>
 <form class="picker" onsubmit="return false"><label for="nz-select">Тип раны</label><div class="picker-row"><select id="nz-select"><option value="">Выберите из списка</option>{INDICATIONS.map(([k, t]) => <option value={k}>{t}</option>)}</select>
 <button type="button" class="btn" data-pick>Показать рекомендацию</button></div></form>
