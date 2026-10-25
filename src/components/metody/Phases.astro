@@ -1,0 +1,38 @@
+---
+// Течение раневого процесса и тактика по фазам; для ВАК — варианты, для устройств — техника нанесения.
+import Rec from './Rec.astro';
+import Ul from './Ul.astro';
+import FreqTable from './FreqTable.astro';
+import { VAC, DEVICES, DECUB_TABLE, PHASES, type Nozologiya } from '../../lib/metody';
+interface Props { d: Nozologiya }
+const { d } = Astro.props;
+---
+{d.vac ? (
+  <div class="variants">{VAC.map(([sec, pg, h, lead, items, fr]) => (
+    <article class="card variant"><h3>{h}</h3><p>{lead}</p><Ul items={items} />{fr && <FreqTable vals={fr} />}<p><Rec sec={sec} page={pg} /></p></article>
+  ))}</div>
+) : d.devices ? (
+  <div class="g3">{DEVICES.map(([s, p, h, t, lim]) => (
+    <article class="card"><h3>{h}</h3><p>{t}</p><p><b>Ограничения.</b> {lim}</p><p><Rec sec={s} page={p} /></p></article>
+  ))}</div>
+) : d.freq_text ? (
+  <div class="two-col"><div class="card"><h3>Особенности применения</h3><Ul items={d.special!} /><p><Rec sec={d.sec} page={d.page} /></p></div>
+  <div class="card"><h3>Рекомендуемая частота смены</h3><div class="table-scroll"><table><tbody>{d.freq_text.map(([a, b]) => <tr><th scope="row">{a}</th><td>{b}</td></tr>)}</tbody></table></div>
+  <p class="note">Показания к немедленному снятию — раздел 5.4.</p><p><Rec sec={d.sec} page={d.page} /></p></div></div>
+) : (
+  <>
+  <ol class="phase-list">{d.phases!.map((t, i) => <li><b>Фаза {i + 1}</b><p>{t}</p></li>)}</ol>
+  <h3 class="mt">Рекомендуемая частота смены покрытия</h3>
+  <FreqTable vals={d.freq!} />
+  {d.freq_note && <p class="note">{d.freq_note}</p>}
+  <p class="note">Показания к немедленному снятию покрытия и ревизии раны — раздел 5.4 (ниже). <Rec sec={d.sec} page={d.page} /></p>
+  {d.decub && (
+    <>
+    <h3 class="mt">Все стадии декубитальных язв: частота смены, сутки</h3>
+    <div class="table-scroll"><table class="freq"><thead><tr><th scope="col">Стадия / фаза</th>{PHASES.map((p) => <th scope="col">{p}</th>)}</tr></thead>
+    <tbody>{DECUB_TABLE.map(([st, vals]) => <tr><th scope="row">{st}</th>{vals.map((v) => <td>{v}</td>)}</tr>)}</tbody></table></div>
+    <p class="note">Указанная частота смены ориентировочная и не охватывает все клинические случаи; окончательное решение принимает лечащий врач. При намокании, изменении цвета, нарушении адгезии или признаках инфекции замена выполняется немедленно, независимо от стадии и фазы. <Rec sec="7.2" page={43} /></p>
+    </>
+  )}
+  </>
+)}

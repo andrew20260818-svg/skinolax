@@ -1,0 +1,7 @@
+---
+// Ссылка-источник на раздел Рекомендаций с открытием PDF на нужной странице.
+import { REC, NB } from '../../lib/metody';
+interface Props { sec: string; page: number }
+const { sec, page } = Astro.props;
+---
+<a class="src" href={`${REC}#page=${page}`} target="_blank" rel="noopener">Рекомендации 2026, разд.{NB}{sec}, с.{NB}{page}</a>

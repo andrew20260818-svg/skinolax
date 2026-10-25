@@ -1,0 +1,44 @@
+---
+// Всплывающее окно по показанию Инструкции: одна нозология — краткая рекомендация, несколько — список вариантов.
+import Rec from './Rec.astro';
+import Src from './Src.astro';
+import Ul from './Ul.astro';
+import FreqTable from './FreqTable.astro';
+import { BY, REC, INSTR_CONTRA, NB, type Indication, type Nozologiya } from '../../lib/metody';
+interface Props { ind: Indication }
+const [key, title, quotes, slugs, note] = Astro.props.ind;
+const items = slugs.map((s) => BY[s]);
+const one = items.length === 1;
+const first = items[0];
+const regime = (d: Nozologiya) => d.freq ? `смена по фазам: ${d.freq[0]}–${d.freq[d.freq.length - 1]}${NB}сут`.replace('–до', ' … до')
+  : d.freq_text ? 'перевязка на 3–4 сутки, снятие со швами на 7–10 сутки' : '';
+const mainCond = (d: Nozologiya) => { const c = d.cond?.[0]; return c ? c[0].toLowerCase() + c.slice(1).replace(/\.+$/, '') : ''; };
+---
+<dialog class="rec-pop" id={`pop-${key}`} aria-labelledby={`pt-${key}`}>
+<button type="button" class="pop-x" data-close aria-label="Закрыть">×</button>
+<p class="eyebrow">{quotes.length ? 'Показание по Инструкции 2026' : 'Рекомендации 2026'}</p>
+<h2 id={`pt-${key}`}>{title}</h2>
+{quotes.length
+  ? <p class="badge badge-yes">В Инструкции: {quotes.join(', ')}. Покрытие может оставаться на ране до 7 суток, если не отслаивается и нет подтекания. Противопоказания: {INSTR_CONTRA.map((x) => x.toLowerCase()).join('; ')}. <Src>Инструкция 2026, «Показания», «Противопоказания», «Способ применения»</Src></p>
+  : <p class="badge badge-no">Варианты применения покрытия из Рекомендаций 2026. В показаниях Инструкции 2026 отдельно не названы. Покрытие может оставаться на ране до 7 суток, если не отслаивается и нет подтекания. Противопоказания: {INSTR_CONTRA.map((x) => x.toLowerCase()).join('; ')}. <Src>Инструкция 2026, «Показания», «Противопоказания», «Способ применения»</Src></p>}
+{one ? (
+  <>
+  <p>{first.lead} <Rec sec={first.sec} page={first.page} /></p>
+  {first.cond && <><h3>Условия применения</h3><Ul items={first.cond.slice(0, 4)} /></>}
+  {first.freq && <><h3>Смена покрытия по фазам, сутки</h3><FreqTable vals={first.freq} /></>}
+  {first.contra && <><h3>Противопоказания при этой ране</h3><Ul items={first.contra} /></>}
+  </>
+) : (
+  <>
+  <h3>Выберите вариант ({items.length})</h3>
+  <ul class="vars">{items.map((d) => (
+    <li class="var"><div><b>{d.title}</b><small>{d.med}</small>
+    {mainCond(d) && <p>Главное условие: {mainCond(d)}.</p>}
+    {regime(d) ? <p class="note">{regime(d)} · <Rec sec={d.sec} page={d.page} /></p> : <p class="note"><Rec sec={d.sec} page={d.page} /></p>}
+    </div><div class="var-act"><a class="btn small" href={`metod-${d.slug}.html`}>Подробнее</a><a class="link" href={`${REC}#page=${d.page}`} target="_blank" rel="noopener">с.{NB}{d.page} →</a></div></li>
+  ))}</ul>
+  </>
+)}
+{note && <p class="note">{note}</p>}
+<div class="actions">{one && <a class="btn" href={`metod-${first.slug}.html`}>Подробнее о методе</a>}<a class="btn ghost" href={`${REC}#page=${first.page}`} target="_blank" rel="noopener">Рекомендация, с.{NB}{first.page}</a><a class="link" href={REC} download="SKINOLAX_Rekomendacii_2026.pdf">Скачать рекомендации · PDF ↓</a></div>
+</dialog>

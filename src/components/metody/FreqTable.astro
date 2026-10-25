@@ -1,0 +1,6 @@
+---
+import { PHASES } from '../../lib/metody';
+interface Props { vals: string[]; head?: string; label?: string }
+const { vals, head = 'Фаза', label = 'Смена, сутки' } = Astro.props;
+---
+<div class="table-scroll"><table class="freq"><thead><tr><th scope="col">{head}</th>{PHASES.map((p) => <th scope="col">{p}</th>)}</tr></thead><tbody><tr><th scope="row">{label}</th>{vals.map((v) => <td>{v}</td>)}</tr></tbody></table></div>

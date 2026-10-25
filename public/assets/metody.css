@@ -1,0 +1,78 @@
+/* Применение по нозологиям: дополнение к v4.css (те же токены дизайн-системы СКИНОЛАКС) */
+.page-hero h1{max-width:24ch}
+.eyebrow{margin-bottom:12px}
+.mt{margin-top:28px}.mb{margin-bottom:28px}
+.src{display:inline-block;font-size:13px;line-height:1.4;font-weight:500;color:var(--sk-ink-2);background:var(--sk-ice);border-radius:var(--r-pill);padding:2px 10px;text-decoration:none;white-space:normal}
+a.src:hover{background:var(--sk-mist);text-decoration:underline}
+.badge{display:block;margin:18px 0 0;padding:12px 16px;border-radius:var(--r-md);background:#fff;border-left:5px solid var(--sk-cyan);font-size:15px;color:var(--sk-ink);max-width:72ch;box-shadow:var(--shadow-s)}
+.badge-near{border-left-color:var(--sk-cyan-60)}
+.badge-no{border-left-color:var(--sk-ink-2);border-left-style:dashed}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.toc a{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:var(--r-pill);background:#fff;box-shadow:var(--shadow-s);text-decoration:none;font-size:15px;font-weight:500}
+.toc a:hover{background:var(--sk-ice)}
+ul.dot{list-style:none;padding:0;margin:0 0 14px}
+ul.dot li{position:relative;padding:5px 0 5px 22px;font-size:16px}
+ul.dot li:before{content:'';position:absolute;left:4px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--sk-cyan)}
+.check-list{margin-bottom:14px}
+.phase-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.phase-list li{background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-s);padding:24px}
+.phase-list b{display:block;font-size:24px;color:var(--sk-teal);margin-bottom:8px}
+.phase-list p{margin:0;font-size:16px}
+table.freq th,table.freq td{text-align:center;white-space:nowrap}
+table.freq tbody th{text-align:left}
+table.freq td{font-weight:700;color:var(--sk-ink);font-size:18px}
+table.disc th,table.disc td,table.noninf th,table.noninf td{font-size:15px;min-width:180px}
+.msteps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);counter-reset:m}
+.msteps li{background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-s);padding:24px;counter-increment:m}
+.msteps li:before{content:counter(m,decimal-leading-zero);display:block;font-size:28px;font-weight:700;color:var(--sk-teal);margin-bottom:6px}
+.msteps h3{font-size:18px}.msteps p{font-size:16px}
+.contra .card{padding:26px}
+.contra h3{font-size:18px}
+.variants{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+.variant h3{font-size:19px}
+.more{background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-s);padding:0 24px}
+.more summary{cursor:pointer;font-weight:700;color:var(--sk-ink);padding:18px 0;min-height:44px}
+/* каталог */
+.picker{margin-top:28px;padding:22px 24px;background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-s);max-width:880px}
+.picker label{display:block;font-weight:700;color:var(--sk-ink);margin-bottom:10px}
+.picker-row{display:flex;flex-wrap:wrap;gap:12px}
+.picker select{flex:1 1 320px;min-height:52px;padding:0 16px;border:2px solid var(--sk-line);border-radius:12px;font:400 17px var(--font);color:var(--sk-text);background:#fff;max-width:100%}
+.picker select:focus{border-color:var(--sk-teal);outline:none;box-shadow:0 0 0 3px rgba(54,167,189,.25)}
+.nz-group{margin-bottom:40px}
+.nz-group .h3{font-size:22px;color:var(--sk-ink);margin-bottom:16px}
+.nz-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.nz{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:96px;padding:18px 20px;background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-s);text-decoration:none;border:2px solid transparent;transition:border-color .18s}
+.nz:hover,.nz:focus-visible{border-color:var(--sk-cyan-60)}
+.nz span{font-weight:700;color:var(--sk-ink);line-height:1.3}
+.nz small{color:var(--sk-ink-2);font-size:13px}
+/* всплывающее окно */
+dialog.rec-pop{max-width:720px;max-height:min(88vh,900px);overflow:auto;padding:40px 40px 32px}
+dialog.rec-pop h2{font-size:26px;padding-right:40px}
+dialog.rec-pop h3{font-size:15px;letter-spacing:.04em;color:var(--sk-ink);margin:22px 0 8px}
+dialog.rec-pop p{font-size:16px}
+dialog.rec-pop .badge{box-shadow:none;background:var(--sk-ice)}
+dialog.rec-pop table.freq td{font-size:16px}
+dialog.rec-pop .actions{margin-top:22px}
+.pop-x{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:0;background:var(--sk-ice);font-size:26px;line-height:1;color:var(--sk-ink);cursor:pointer}
+.pop-x:hover{background:var(--sk-mist)}
+@media (max-width:1199px){.nav{display:flex}.nav>a{font-size:14px}}
+@media (max-width:1100px){.msteps,.phase-list,.nz-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.variants{grid-template-columns:1fr}}
+@media (max-width:767px){
+ .nav{display:none}.head-actions .btn{font-size:13px;padding:0 14px}
+ .msteps,.phase-list,.nz-grid{grid-template-columns:1fr}
+ dialog.rec-pop{padding:24px 18px;max-height:92vh}
+ dialog.rec-pop h2{font-size:21px}
+ .picker{padding:18px}.picker .btn{width:100%}
+}
+dialog.rec-pop .eyebrow{padding-right:48px}
+.medname{font-size:15px;color:var(--sk-ink-2);margin:-6px 0 14px}
+.nz-h{font-size:22px;color:var(--sk-ink);margin-bottom:6px}
+.nz-grid{margin-top:16px}
+ul.vars{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.var{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 18px;align-items:center;padding:14px 16px;background:var(--sk-ice);border-radius:var(--r-md)}
+.var b{display:block;color:var(--sk-ink);line-height:1.3}
+.var small{display:block;font-size:13px;color:var(--sk-ink-2);margin:2px 0 6px}
+.var p{font-size:15px;margin:0 0 4px}
+.var-act{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+@media (max-width:600px){.var{grid-template-columns:1fr}.var-act{flex-direction:row;align-items:center;gap:14px}}
+.disc-note{margin-top:18px;font-size:15px}

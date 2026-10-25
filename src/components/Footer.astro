@@ -1,0 +1,20 @@
+---
+import shop from '../data/shop.json';
+
+const COLUMNS: [string, [string, string][]][] = [
+  ['Продукт', [['product.html', 'СКИНОЛАКС'], ['primenenie.html', 'Применение'], ['kak-nanosit.html', 'Как наносить'], ['faq.html', 'Вопросы и ответы'], ['shop.html', 'Купить']]],
+  ['Аудиториям', [['patientam.html', 'Пациентам'], ['specialistam.html', 'Специалистам'], ['organizaciyam.html', 'Организациям'], ['partnery.html', 'Партнёрам'], ['vet.html', 'СКИНОЛАКС Вет'], ['dokazatelstva.html', 'Доказательства']]],
+  ['Компания', [['o-kompanii.html', 'О компании'], ['novosti.html', 'Новости'], ['materialy.html', 'Материалы о покрытии'], ['dokumenty.html', 'РУ, сертификат, инструкция'], ['dostavka.html', 'Доставка и оплата'], ['privacy.html', 'Обработка персональных данных'], ['nezhelatelnoe-yavlenie.html', 'Сообщить о нежелательном явлении']]],
+];
+---
+<div class="legal-bar" role="note">Имеются противопоказания. Перед применением необходимо ознакомиться с <a href="documents/instrukciya-skinolaks-2026.pdf" target="_blank" rel="noopener">инструкцией</a> или проконсультироваться со специалистом.</div>
+<footer class="footer"><div class="wrap"><div class="footer-grid">
+<div><img src="assets/logo-cyan.svg" alt="СКИНОЛАКС" width="150" height="23" style="width:150px;margin-bottom:16px">
+<p>ООО «МЕНОРА-МЕД»<br>119571, Москва, проспект Вернадского, 96<br>ОГРН 1217700485309 · ИНН 9702037110 · КПП 772901001<br>РУ РЗН 2023/20723 от 31.01.2026</p>
+<p><a href="tel:+74955454950">+7 (495) 545-49-50</a><br><a href="mailto:info@menoramed.ru">info@menoramed.ru</a><br><a href="https://skinolax.ru">skinolax.ru</a></p></div>
+{COLUMNS.map(([h, links]) => <div><h4>{h}</h4><ul>{links.map(([href, t]) => <li><a href={href}>{t}</a></li>)}</ul></div>)}
+</div><p class="copy">© 2026 ООО «МЕНОРА-МЕД». Тестовая версия сайта: заказы и заявки не передаются производителю, оплата не проводится.</p></div></footer>
+<div class="mobile-buy"><a class="btn" href="shop.html">Купить · {shop.price}&nbsp;₽</a></div>
+<dialog id="spec-gate" aria-labelledby="gate-title"><h2 id="gate-title">Материалы для специалистов</h2>
+<p>Раздел содержит методы применения, отчёты и клинические фотографии и предназначен для медицинских и фармацевтических работников.</p>
+<div class="actions"><button type="button" class="btn" data-spec-yes>Я специалист здравоохранения</button><button type="button" class="btn ghost" data-spec-no>Назад</button></div></dialog>
