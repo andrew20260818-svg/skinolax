@@ -1,0 +1,46 @@
+---
+// Страница метода для каждой нозологии (глава 7 Рекомендаций 2026). Тексты — src/data/metody.json.
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/metody/Crumbs.astro';
+import Rec from '../components/metody/Rec.astro';
+import Ul from '../components/metody/Ul.astro';
+import InstrBadge from '../components/metody/InstrBadge.astro';
+import Phases from '../components/metody/Phases.astro';
+import MethodSteps from '../components/metody/MethodSteps.astro';
+import Contra from '../components/metody/Contra.astro';
+import Complications from '../components/metody/Complications.astro';
+import DocLinks from '../components/metody/DocLinks.astro';
+import { N, IND_OF, REC, CATALOG, NB, type Nozologiya } from '../lib/metody';
+
+export function getStaticPaths() {
+  return N.map((d) => ({ params: { slug: d.slug }, props: { d } }));
+}
+
+const { d } = Astro.props as { d: Nozologiya };
+const ind = IND_OF[d.slug];
+const group: [string | null, string] = ind ? [`${CATALOG}#${ind[0]}`, ind[1]] : [null, 'Вне показаний Инструкции 2026'];
+const crumbs: [string | null, string][] = [['index.html', 'Главная'], ['specialistam.html', 'Специалистам'], [CATALOG, 'Применение по показаниям'],
+  ...(group[1] === d.title ? [] : [group]), [null, d.title]];
+const secHead = d.vac ? 'Варианты применения' : d.devices ? 'Техника нанесения' : 'Течение раневого процесса и тактика по фазам';
+---
+<Base file={`metod-${d.slug}.html`} title={`СКИНОЛАКС: ${d.title} — метод применения`}
+  description={`${d.title}: течение раневого процесса, метод, противопоказания и осложнения по Рекомендациям 2026.`}
+  key="metody" current="specialistam.html" metody>
+<section class="page-hero"><div class="wrap"><Crumbs items={crumbs} />
+<p class="eyebrow">Рекомендации 2026 · раздел {d.sec}</p><h1>{d.title}</h1><p class="medname">В Рекомендациях: {d.med}</p>
+<p class="lead">{d.lead} <Rec sec={d.sec} page={d.page} /></p>
+<InstrBadge d={d} />
+<div class="actions"><a class="btn" href={`${REC}#page=${d.page}`} target="_blank" rel="noopener">Рекомендация, с.{NB}{d.page}</a><a class="btn ghost" href={REC} download="SKINOLAX_Rekomendacii_2026.pdf">Скачать рекомендации · PDF</a></div>
+<nav class="toc" aria-label="Содержание страницы"><a href="#techenie">Течение и тактика</a><a href="#metod">Метод лечения</a><a href="#protivopokazaniya">Противопоказания</a><a href="#oslozhneniya">Осложнения и риски</a><a href="#dokumenty">Документы</a></nav>
+</div></section>
+<section class="section ice" id="techenie"><div class="wrap"><div class="section-head"><h2>{secHead}</h2></div>
+{d.cond && <div class="mb"><div class="card"><h3>Условия применения</h3><Ul items={d.cond} cls="check-list" /><p><Rec sec={d.sec} page={d.page} /></p></div></div>}
+<Phases d={d} />
+{d.warn && <div class="callout mt"><strong>Важно</strong><p>{d.warn} <Rec sec={d.warn_sec ?? d.sec} page={d.page} /></p></div>}
+</div></section>
+<section class="section" id="metod"><div class="wrap"><div class="section-head"><h2>Метод лечения</h2><p>Общий порядок работы с покрытием по разделам 2–6 Рекомендаций; особенности нозологии — в блоке выше.</p></div><MethodSteps d={d} /></div></section>
+<section class="section ice" id="protivopokazaniya"><div class="wrap"><div class="section-head"><h2>Противопоказания</h2></div><Contra d={d} /></div></section>
+<section class="section" id="oslozhneniya"><div class="wrap"><div class="section-head"><h2>Возможные осложнения и риски</h2><p>При любом осложнении первое действие — снять покрытие, оценить рану и кожу, определить причину. <Rec sec="9" page={75} /></p></div><Complications /></div></section>
+<section class="section" id="dokumenty"><div class="wrap"><div class="section-head"><h2>Документы</h2></div><DocLinks d={d} />
+<div class="actions"><a class="btn ghost" href={CATALOG}>← Все показания</a></div></div></section>
+</Base>

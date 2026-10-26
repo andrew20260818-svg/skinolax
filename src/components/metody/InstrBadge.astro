@@ -1,0 +1,8 @@
+---
+// Пометка «не названо в Инструкции». Остальные виды сопоставления — рабочие, на сайт не выводятся (Андрей, 22.10.2026).
+import Src from './Src.astro';
+import type { Nozologiya } from '../../lib/metody';
+interface Props { d: Nozologiya }
+const [kind] = Astro.props.d.instr;
+---
+{kind === 'no' && <p class={`badge badge-${kind}`}>В показаниях Инструкции 2026 не названо <Src>Инструкция 2026, «Показания к применению»</Src></p>}

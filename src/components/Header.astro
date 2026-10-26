@@ -1,0 +1,52 @@
+---
+import shop from '../data/shop.json';
+
+interface Props { current: string }
+const { current } = Astro.props;
+
+const NAV_IND = [
+  ['primenenie-ozhogi.html', 'Ожоги II–IIIA степени'],
+  ['primenenie-rany.html', 'Раны'],
+  ['primenenie-prolezhni.html', 'Пролежни'],
+  ['primenenie-yazvy.html', 'Трофические и венозные язвы'],
+  ['primenenie-sds.html', 'Язвы при диабетической стопе'],
+];
+const NAV_AFTER = [
+  ['kak-nanosit.html', 'Как наносить'],
+  ['dokazatelstva.html', 'Доказательства'],
+  ['specialistam.html', 'Специалистам'],
+  ['organizaciyam.html', 'Организациям'],
+  ['vet.html', 'СКИНОЛАКС Вет'],
+];
+const MOBILE_AUD = [
+  ['patientam.html', 'Я пациент или близкий'],
+  ['specialistam.html', 'Я врач'],
+  ['organizaciyam.html', 'Я закупаю для организации'],
+  ['vet.html', 'Я ветеринарный врач'],
+];
+const MOBILE_NAV = [
+  ['product.html', 'Продукт'], ['primenenie.html', 'Применение'], ['kak-nanosit.html', 'Как наносить'],
+  ['dokazatelstva.html', 'Доказательства'], ['shop.html', 'Купить'], ['cart.html', 'Корзина'], ['faq.html', 'Вопросы и ответы'],
+  ['partnery.html', 'Партнёрам'], ['vet.html', 'СКИНОЛАКС Вет'], ['o-kompanii.html', 'О компании'], ['novosti.html', 'Новости'],
+  ['materialy.html', 'Материалы о покрытии'], ['dokumenty.html', 'Документы'],
+];
+const cur = (href: string) => (href === current ? 'page' : undefined);
+---
+<a class="skip" href="#main">К содержанию</a>
+<header class="header"><div class="wrap">
+<a class="logo" href="index.html" aria-label="СКИНОЛАКС — на главную"><img src="assets/logo-cyan.svg" alt="СКИНОЛАКС" width="259" height="40"></a>
+<nav class="nav" aria-label="Основное меню">
+<a href="product.html" aria-current={cur('product.html')}>Продукт</a>
+<div class="dd"><button type="button" aria-expanded="false" aria-haspopup="true">Применение ▾</button><div class="dd-menu"><a href="primenenie.html"><b>Все показания</b></a>{NAV_IND.map(([h, t]) => <a href={h}>{t}</a>)}</div></div>
+{NAV_AFTER.map(([h, t]) => <a href={h} aria-current={cur(h)}>{t}</a>)}
+</nav>
+<div class="head-actions">
+<a class="cart-link" href="cart.html" aria-label="Корзина"><svg class="cart-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.8L20 8H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><span class="lbl">Корзина</span><span class="cart-count" data-cart-count>0</span></a>
+<a class="btn" href="shop.html" data-goal="buy_header">Купить · {shop.price}&nbsp;₽</a>
+<button type="button" class="burger" aria-expanded="false" aria-controls="mobile-menu">Меню</button>
+</div>
+</div></header>
+<div class="mobile-menu" id="mobile-menu">
+<div class="aud">{MOBILE_AUD.map(([h, t]) => <a href={h}>{t}</a>)}</div>
+<nav aria-label="Мобильное меню">{MOBILE_NAV.map(([h, t]) => <a href={h}>{t}</a>)}</nav>
+</div>

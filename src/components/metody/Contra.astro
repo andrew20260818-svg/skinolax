@@ -1,0 +1,16 @@
+---
+// Противопоказания: при нозологии, общие по разделу 2.1 Рекомендаций и по Инструкции 2026.
+import Rec from './Rec.astro';
+import Src from './Src.astro';
+import Ul from './Ul.astro';
+import { GENERAL_CONTRA_ABS, GENERAL_CONTRA_REL, INSTR_CONTRA, type Nozologiya } from '../../lib/metody';
+interface Props { d: Nozologiya }
+const { d } = Astro.props;
+---
+<div class="g3 contra"><div class="card"><h3>{d.vac ? 'При всех вариантах с ВАК-терапией' : 'При этой нозологии'}</h3>
+{d.devices ? <p>Ограничения для каждого устройства указаны выше, в описании техники.</p> : d.contra && <><Ul items={d.contra} /><p><Rec sec={d.sec} page={d.page} /></p></>}
+</div>
+<div class="card"><h3>Общие: абсолютные</h3><Ul items={GENERAL_CONTRA_ABS} /><p><Rec sec="2.1.1" page={6} /></p></div>
+<div class="card"><h3>Общие: относительные</h3><Ul items={GENERAL_CONTRA_REL} /><p><Rec sec="2.1.2" page={6} /></p></div></div>
+<div class="callout mt"><strong>Противопоказания по Инструкции 2026</strong><p>{INSTR_CONTRA.join('; ')}. <Src>Инструкция 2026, «Противопоказания»</Src></p></div>
+<div class="callout mt"><strong>Нет клинических данных</strong><p>Беременные и кормящие женщины; дети; иммунокомпрометированные пациенты (в том числе с гепатитами B и/или C, ВИЧ-инфекцией, СПИД). Применение у этих групп — только по решению лечащего врача при оценке соотношения пользы и риска. <Rec sec="2.1.2" page={7} /></p></div>

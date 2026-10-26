@@ -1,0 +1,5 @@
+# СКИНОЛАКС на Beget. Служебные файлы сборки (.py, .md) браузеру не отдаются.
+<FilesMatch "\.(py|md)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes

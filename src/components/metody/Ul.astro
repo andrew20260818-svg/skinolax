@@ -1,0 +1,5 @@
+---
+interface Props { items: string[]; cls?: string }
+const { items, cls = 'dot' } = Astro.props;
+---
+<ul class={cls}>{items.map((x) => <li>{x}</li>)}</ul>

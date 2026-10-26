@@ -1,0 +1,47 @@
+---
+// Общий каркас всех страниц: <head>, шапка, подвал. Заголовок и описание страницы берутся из src/data/pages.json.
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import pages from '../data/pages.json';
+
+interface Props {
+  file: string;          // имя файла страницы, например faq.html
+  title?: string;        // для страниц, которых нет в pages.json (методики)
+  description?: string;
+  key?: string;          // значение data-page; по умолчанию имя файла без .html
+  current?: string;      // какой пункт меню подсветить; по умолчанию сама страница
+  metody?: boolean;      // подключить стили и скрипт страниц методик
+}
+
+const p = Astro.props;
+const meta = (pages as Record<string, { title: string; description: string; key?: string; current?: string }>)[p.file] ?? {};
+const title = p.title ?? meta.title;
+const description = p.description ?? meta.description;
+const key = p.key ?? meta.key ?? p.file.replace(/\.html$/, '');
+const current = p.current ?? meta.current ?? p.file;
+---
+<!doctype html>
+<html lang="ru" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<meta name="description" content={description}>
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href={`https://skinolax.ru/${p.file}`}>
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:image" content="https://skinolax.ru/assets/product.png">
+<meta name="theme-color" content="#3CC3DE">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="assets/v4.css">
+<script is:inline src="assets/v4.js" defer></script>
+{p.metody && <link rel="stylesheet" href="assets/metody.css">}
+{p.metody && <script is:inline src="assets/metody.js" defer></script>}
+</head>
+<body data-page={key}>
+<Header current={current} />
+<main id="main"><slot /></main>
+<Footer />
+</body>
+</html>

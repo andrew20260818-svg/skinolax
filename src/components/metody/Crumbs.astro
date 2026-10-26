@@ -1,0 +1,4 @@
+---
+interface Props { items: [string | null, string][] }
+---
+<p class="crumbs">{Astro.props.items.map(([h, t], i) => <>{i > 0 && ' / '}{h ? <a href={h}>{t}</a> : t}</>)}</p>

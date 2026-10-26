@@ -1,0 +1,24 @@
+---
+// Применение по показаниям: выбор типа раны из показаний Инструкции 2026, по выбору открывается всплывающее окно.
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/metody/Crumbs.astro';
+import Src from '../components/metody/Src.astro';
+import Popup from '../components/metody/Popup.astro';
+import { INDICATIONS, BY, REC, REC_MB, INSTR, NB } from '../lib/metody';
+
+const variants = (ss: string[]) => ss.length === 1 ? BY[ss[0]].med : ss.length < 5 ? `${ss.length} варианта в Рекомендациях` : `${ss.length} вариантов в Рекомендациях`;
+---
+<Base file="specialistam-metody.html" title="СКИНОЛАКС: применение по показаниям" description="Рекомендации по применению покрытия СКИНОЛАКС по показаниям Инструкции 2026."
+  key="metody" current="specialistam.html" metody>
+<section class="page-hero"><div class="wrap"><Crumbs items={[['index.html', 'Главная'], ['specialistam.html', 'Специалистам'], [null, 'Применение по показаниям']]} />
+<p class="eyebrow">Рекомендации 2026</p><h1>Применение по показаниям</h1>
+<p class="lead">Выберите тип раны из показаний Инструкции по применению 2026 года. Откроется рекомендация: варианты применения, условия, режим смены покрытия и противопоказания. Подробности — из документа «Пенополиуретановое покрытие Скинолакс: Рекомендации по применению», 2026 <Src>глава 7, с. 35–67</Src>.</p>
+<form class="picker" onsubmit="return false"><label for="nz-select">Тип раны</label><div class="picker-row"><select id="nz-select"><option value="">Выберите из списка</option>{INDICATIONS.map(([k, t]) => <option value={k}>{t}</option>)}</select>
+<button type="button" class="btn" data-pick>Показать рекомендацию</button></div></form>
+<div class="actions"><a class="btn ghost" href={REC} download="SKINOLAX_Rekomendacii_2026.pdf">Скачать рекомендации · PDF · {REC_MB}{NB}МБ</a><a class="link" href={REC} target="_blank" rel="noopener">Открыть в браузере →</a></div>
+</div></section>
+<section class="section ice"><div class="wrap"><h2 class="h3 nz-h">Показания к применению</h2><p class="note"><Src>Инструкция 2026, «Показания к применению»</Src></p>
+<div class="nz-grid">{INDICATIONS.map(([k, t, , ss]) => <a class="nz" href={`#${k}`} data-pop={k}><span>{t}</span><small>{variants(ss)}</small></a>)}</div>
+<div class="callout mt"><strong>Перед применением</strong><p>Рекомендации дополняют, а не заменяют Инструкцию по применению. <a href={INSTR} target="_blank" rel="noopener">Инструкция 2026</a></p></div></div></section>
+{INDICATIONS.map((ind) => <Popup ind={ind} />)}
+</Base>

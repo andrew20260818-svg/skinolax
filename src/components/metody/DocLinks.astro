@@ -1,0 +1,12 @@
+---
+import { REC, REC_MB, INSTR, METHODS, NB, type Nozologiya } from '../../lib/metody';
+interface Props { d: Nozologiya }
+const { d } = Astro.props;
+const m = d.method ? METHODS[d.method] : null;
+---
+<div class="doc-list">
+<a class="doc" href={`${REC}#page=${d.page}`} target="_blank" rel="noopener"><span>Рекомендации 2026, раздел {d.sec}<small>Открыть на странице {d.page}</small></span><em>с.{NB}{d.page} →</em></a>
+<a class="doc" href={REC} download="SKINOLAX_Rekomendacii_2026.pdf"><span>Рекомендации по применению, 2026<small>Полный документ, 80 страниц</small></span><em>PDF · {REC_MB}{NB}МБ ↓</em></a>
+<a class="doc" href={INSTR} target="_blank" rel="noopener"><span>Инструкция по применению, 2026<small>Официальный документ к РУ РЗН 2023/20723</small></span><em>PDF →</em></a>
+{m && <a class="doc" href={`documents/methods/${m.file}`} target="_blank" rel="noopener"><span>{m.name}<small>Методика СКИНОЛАКС</small></span><em>PDF →</em></a>}
+</div>
