@@ -1,0 +1,15 @@
+# Netlify: тестовый адрес *.netlify.app для статической сборки Astro.
+# Заказы, промокоды, оплата Т-Банком и админка — PHP, Netlify его не исполняет: они остаются на Beget.
+# Поэтому api/ и admin/ из сборки удаляются, иначе Netlify отдал бы исходники PHP как обычные файлы.
+[build]
+  command = "npm run build && rm -rf dist/api dist/admin dist/.htaccess"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Тестовая версия: закрыта от поисковиков, как и сборка на Beget (robots.txt и noindex на страницах).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
