@@ -4,3 +4,5 @@ dist/
 .DS_Store
 # PDF-документы (≈75 МБ) в репозиторий не кладём: копируются в public/documents перед сборкой, см. README
 public/documents/**/*.pdf
+# Настоящие настройки сервера с паролями и ключами: только на сервере
+beget/private/config.php

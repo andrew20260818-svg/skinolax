@@ -1,4 +1,4 @@
-/* СКИНОЛАКС v4. Заказы уходят на сервер (/api/orders: письмо менеджеру и оплата Т-Банком); заявки из остальных форм пока не передаются.
+/* СКИНОЛАКС v4. Заказы уходят на сервер (/api/orders: письмо менеджеру и оплата CDEK Pay); заявки из остальных форм пока не передаются.
    __SHOP__ подставляет сборщик (цена, порог бесплатной доставки, способы получения). Сумму к оплате сервер считает сам. */
 (()=>{'use strict';
  const root=document.documentElement;root.classList.remove('no-js');root.classList.add('js');
@@ -121,7 +121,7 @@
    btn.disabled=true;status.textContent='Проверяем…';
    const order=f.dataset.form==='order';if(order)orderSent=true;
    try{if(location.origin==='http://127.0.0.1:8788'||(order&&location.protocol==='https:')){
-     // Заказ: сервер проверяет корзину, сам считает сумму по цене из shop.json и вызывает Init Т-Банка. Ключи терминала есть только на сервере.
+     // Заказ: сервер проверяет корзину, сам считает сумму по цене из shop.json и создаёт ссылку на оплату CDEK Pay. Ключи есть только на сервере.
      const r=await fetch(order?'api/orders':'api/leads',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID?.()||num+'-skinolax'},body:JSON.stringify({form:f.dataset.form,fields,consent:true})});const a=await r.json();
      if(order&&r.ok&&a.payment_url&&a.test!==true){track('payment_redirect');location.assign(a.payment_url);return;}
      if(order&&a.error==='promo'){promo=null;ss.set(PKEY,'null');render();status.textContent=a.message||'Промокод не принят.';const pe=f.querySelector('#o-promo-err');if(pe)pe.textContent=a.message||'';return;}
@@ -143,7 +143,7 @@
    fetch('api/abandoned',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({form:'abandoned',fields,consent})}).catch(()=>{});track('form_abandoned');};
   of.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(beacon,120000);});
   addEventListener('pagehide',beacon);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')beacon();});}
- // Возврат со страницы оплаты Т-Банка (SuccessURL / FailURL в tbank_config.json)
+ // Возврат со страницы оплаты CDEK Pay (success_url / fail_url в private/config.php)
  const pay=new URLSearchParams(location.search).get('pay');
  if(pay&&document.querySelector('.cart-layout')){const box=document.createElement('div');box.className='success';box.tabIndex=-1;const ok=pay==='success';
   box.innerHTML=ok?'<h2>Оплата прошла</h2><p>Спасибо! Менеджер свяжется с вами, чтобы подтвердить доставку или самовывоз. Чек 54-ФЗ придёт на e-mail.</p>':'<h2>Оплата не прошла</h2><p>Деньги не списаны. Попробуйте оформить заказ ещё раз или позвоните +7 (495) 545-49-50.</p>';

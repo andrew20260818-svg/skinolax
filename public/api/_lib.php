@@ -6,7 +6,8 @@ date_default_timezone_set('Europe/Moscow');
 
 const SKX_STATUS = ['NEW' => 'создан', 'NO_PAYMENT' => 'без онлайн-оплаты', 'INIT_FAILED' => 'платёж не создан', 'WAITING_PAYMENT' => 'ждёт оплаты',
     'AUTHORIZED' => 'сумма заблокирована', 'CONFIRMED' => 'оплачен', 'REJECTED' => 'отклонён', 'CANCELED' => 'отменён', 'REVERSED' => 'блокировка снята',
-    'REFUNDED' => 'возврат', 'PARTIAL_REFUNDED' => 'частичный возврат'];
+    'REFUNDED' => 'возврат', 'PARTIAL_REFUNDED' => 'частичный возврат', 'REFUND_REQUESTED' => 'запрошен возврат', 'EXPIRED' => 'не оплачен, ссылка истекла'];
+const SKX_PROVIDERS = ['tbank' => 'Т-Банк', 'cdekpay' => 'CDEK Pay'];
 const SKX_ITEMS = ['standard-100' => 'СКИНОЛАКС Стандарт 100 см²', 'compact-100' => 'СКИНОЛАКС Компакт 100 см²'];
 
 function skx_private(): string {
@@ -146,6 +147,7 @@ function skx_order_rows(array $o): array {
         'Телефон' => $o['phone'],
         'E-mail' => $o['email'],
         'Комментарий' => $o['comment'],
+        'Оплата через' => SKX_PROVIDERS[$o['provider'] ?? 'tbank'] ?? '',
         'PaymentId' => $o['payment_id'] ?? '',
         'Статус оплаты' => SKX_STATUS[$o['status']] ?? $o['status'],
     ];
@@ -200,6 +202,94 @@ function skx_receipt_items(array $items, int $goodsKop, int $amountKop, string $
         else { if ($q > 1) $out[] = $mk($unit, $q - 1); $out[] = $mk($unit + $rest, 1); }
     }
     return $out;
+}
+
+/* ---------- CDEK Pay ---------- */
+
+function skx_payment_provider(): string {
+    return (skx_config()['payment_provider'] ?? 'tbank') === 'cdekpay' ? 'cdekpay' : 'tbank';
+}
+
+/* Ключ, которым подписываются запросы и уведомления: тестовый для валюты TST, боевой для RUR. */
+function skx_cdekpay_secret(array $c, string $currency): string {
+    return (string)($currency === 'TST' ? ($c['test_secret_key'] ?? '') : ($c['secret_key'] ?? ''));
+}
+
+function skx_cdekpay_currency(array $c): string {
+    return !empty($c['test']) ? 'TST' : 'RUR';
+}
+
+function skx_cdekpay_ready(array $c): bool {
+    $secret = skx_cdekpay_secret($c, skx_cdekpay_currency($c));
+    foreach ([(string)($c['login'] ?? ''), $secret] as $v) if ($v === '' || str_contains($v, 'ЗАМЕНИТЬ')) return false;
+    return true;
+}
+
+/* Вложенные объекты и массивы приводятся к плоскому виду: receipt_details.0.id, receipt_details.0.name… */
+function skx_cdekpay_flat(array $a, string $prefix = ''): array {
+    $out = [];
+    foreach ($a as $k => $v) {
+        if ($v === null) continue;
+        $key = $prefix === '' ? (string)$k : "$prefix.$k";
+        if (is_array($v)) $out += skx_cdekpay_flat($v, $key);
+        else $out[$key] = is_bool($v) ? ($v ? 'true' : 'false') : (string)$v;
+    }
+    return $out;
+}
+
+/* Подпись CDEK Pay: значения по алфавиту ключей через «|», в конце секретный ключ, SHA-256 hex в верхнем регистре. */
+function skx_cdekpay_sign(array $obj, string $secret): string {
+    $flat = skx_cdekpay_flat($obj);
+    ksort($flat, SORT_STRING);
+    return strtoupper(hash('sha256', implode('|', array_merge(array_values($flat), [$secret]))));
+}
+
+/* POST в Merchant API. $key — имя подписываемого объекта (payment_order или data). Возвращает [HTTP-код, ответ]. */
+function skx_cdekpay_call(string $path, string $key, array $obj, string $currency): array {
+    $c = skx_config()['cdekpay'] ?? [];
+    $body = ['login' => (string)$c['login'], 'signature' => skx_cdekpay_sign($obj, skx_cdekpay_secret($c, $currency)), $key => $obj];
+    $ch = curl_init(rtrim($c['api_url'] ?? 'https://secure.cdekfin.ru/merchant_api/', '/') . '/' . ltrim($path, '/'));
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE)]);
+    $r = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    if ($r === false) throw new RuntimeException('cdekpay: ' . $err);
+    $d = json_decode((string)$r, true);
+    return [$code, is_array($d) ? $d : []];
+}
+
+/* Строки чека для CDEK Pay из тех же расчётов, что и для Т-Банка: суммы в копейках, id уникален в чеке. */
+function skx_cdekpay_receipt(array $items, int $goodsKop, int $amountKop, array $c): array {
+    $out = [];
+    foreach (skx_receipt_items($items, $goodsKop, $amountKop, '') as $i => $r) {
+        $out[] = array_filter(['id' => (string)($i + 1), 'name' => $r['Name'], 'price' => $r['Price'], 'quantity' => $r['Quantity'], 'sum' => $r['Amount'],
+            'measure' => 0, 'payment_object' => 1, 'vat_type' => $c['vat'] ?? null, 'payment_method' => $c['payment_method'] ?? null], fn($v) => $v !== null && $v !== '');
+    }
+    return $out;
+}
+
+/* Уведомление CDEK Pay не содержит нашего номера заказа: заказ находится по access_key из ответа на создание ссылки. */
+function skx_cdekpay_index(string $accessKey, ?string $orderId = null): ?string {
+    if (!preg_match('/^[A-Za-z0-9_-]{8,64}$/', $accessKey)) return null;
+    return skx_locked(skx_data('cdekpay-index.json'), function ($d) use ($accessKey, $orderId) {
+        if ($orderId === null) return [null, $d[$accessKey] ?? null];
+        $d[$accessKey] = $orderId;
+        return [$d, $orderId];
+    });
+}
+
+/* Заказ CDEK Pay без оплаты после срока жизни ссылки помечается EXPIRED (уведомлений о неуспешной оплате нет). */
+function skx_cdekpay_expire(array $o): array {
+    $min = (int)(skx_config()['cdekpay']['link_life_time'] ?? 0);
+    if (($o['provider'] ?? '') === 'cdekpay' && $o['status'] === 'WAITING_PAYMENT' && $min > 0
+        && time() > strtotime($o['created']) + ($min + 15) * 60) {
+        $o['status'] = 'EXPIRED';
+        $o['history'][] = [date('c'), 'EXPIRED'];
+        skx_order_save($o);
+    }
+    return $o;
 }
 
 /* ---------- почта (SMTP Beget) ---------- */

@@ -1,8 +1,9 @@
-# /api/orders, /api/promo, /api/tbank/notify → PHP-обработчики. Служебный _lib.php снаружи не открывается.
+# /api/orders, /api/promo, /api/tbank/notify, /api/cdekpay/notify → PHP-обработчики. Служебный _lib.php снаружи не открывается.
 RewriteEngine On
 RewriteRule ^orders/?$ orders.php [L]
 RewriteRule ^promo/?$ promo.php [L,QSA]
 RewriteRule ^tbank/notify/?$ tbank-notify.php [L]
+RewriteRule ^cdekpay/notify/?$ cdekpay-notify.php [L]
 <Files "_lib.php">
   Require all denied
 </Files>
