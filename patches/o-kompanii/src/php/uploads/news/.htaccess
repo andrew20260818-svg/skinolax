@@ -1,0 +1,7 @@
+# Загруженные фото новостей: только картинки, скрипты здесь не выполняются.
+Options -Indexes -ExecCGI
+RemoveHandler .php .phtml .php5 .phar
+RemoveType .php .phtml .php5 .phar
+<FilesMatch "\.(?i:php|phtml|php5|phar|pl|py|cgi|sh|htaccess)$">
+  Require all denied
+</FilesMatch>
