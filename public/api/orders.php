@@ -52,8 +52,11 @@ $o = [
 ];
 
 $c = skx_config();
+$provider = skx_payment_provider();
+$o['provider'] = $provider;
 $tb = $c['tbank'] ?? [];
-if (!skx_tbank_ready($tb)) {
+$cp = $c['cdekpay'] ?? [];
+if ($provider === 'cdekpay' ? !skx_cdekpay_ready($cp) : !skx_tbank_ready($tb)) {
     // Ключей терминала ещё нет: заказ сохраняется и приходит на почту, оплату менеджер согласует с клиентом.
     $o['status'] = 'NO_PAYMENT';
     skx_order_save($o);
@@ -62,6 +65,40 @@ if (!skx_tbank_ready($tb)) {
 }
 
 $kop = $amount * 100;
+
+if ($provider === 'cdekpay') {
+    // CDEK Pay: ссылка на платёжную форму. Деньги списываются сразу, блокировки суммы нет.
+    $cur = skx_cdekpay_currency($cp);
+    $po = [
+        'pay_for' => mb_substr("СКИНОЛАКС, заказ {$o['id']}", 0, 100), 'pay_amount' => $kop, 'currency' => $cur,
+        'user_phone' => $o['phone'], 'user_email' => $o['email'],
+        'return_url_success' => $cp['success_url'] ?? '', 'return_url_fail' => $cp['fail_url'] ?? '',
+        'link_life_time' => (int)($cp['link_life_time'] ?? 0) ?: null,
+    ];
+    if (!empty($cp['receipt'])) $po['receipt_details'] = skx_cdekpay_receipt($items, $goods * 100, $kop, $cp);
+    $po = array_filter($po, fn($v) => $v !== null && $v !== '');
+    try { [$code, $r] = skx_cdekpay_call('payment_orders', 'payment_order', $po, $cur); }
+    catch (Throwable $e) { [$code, $r] = [0, ['message' => $e->getMessage()]]; }
+    $r = $r['result'] ?? $r;
+    if ($code !== 200 || empty($r['link']) || empty($r['access_key'])) {
+        $o['status'] = 'INIT_FAILED';
+        $o['history'][] = [date('c'), "INIT_FAILED cdekpay HTTP $code " . ($r['code'] ?? '') . ' ' . ($r['message'] ?? '')];
+        skx_order_save($o);
+        skx_mail("Заказ {$o['id']}: платёж не создан", skx_order_rows($o) + ['Ошибка CDEK Pay' => "HTTP $code " . ($r['message'] ?? '')], $o['email']);
+        skx_json(502, ['error' => 'payment', 'order_id' => $o['id']]);
+    }
+    $o['cdek_order_id'] = (string)$r['order_id'];
+    $o['cdek_access_key'] = (string)$r['access_key'];
+    $o['currency'] = $cur;
+    if (!empty($po['receipt_details'])) $o['receipt'] = $po['receipt_details'];  // нужен для возврата
+    $o['status'] = 'WAITING_PAYMENT';
+    $o['history'][] = [date('c'), "CDEK Pay order {$o['cdek_order_id']}"];
+    skx_order_save($o);
+    skx_cdekpay_index($o['cdek_access_key'], $o['id']);
+    skx_mail("Новый заказ {$o['id']} на " . skx_rub($amount) . ', ждёт оплаты', skx_order_rows($o), $o['email']);
+    skx_json(200, ['order_id' => $o['id'], 'payment_url' => $r['link']]);
+}
+
 $params = [
     'Amount' => $kop, 'OrderId' => $o['id'], 'Description' => mb_substr("СКИНОЛАКС, заказ {$o['id']}", 0, 140),
     'PayType' => $tb['pay_type'] ?? 'O',

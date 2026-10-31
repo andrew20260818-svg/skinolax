@@ -33,4 +33,25 @@ return [
         'fail_url' => 'https://skinolax.ru/cart.html?pay=fail',
         'notification_url' => 'https://skinolax.ru/api/tbank/notify',
     ],
+
+    // Какой сервис принимает оплату заказов: 'tbank' или 'cdekpay'.
+    'payment_provider' => 'tbank',
+
+    // CDEK Pay (ООО «СДЭК Финанс»), сервер https://secure.cdekfin.ru/.
+    // Логин магазина: secure.cdekfin.ru/stores. Ключи: личный кабинет → Интеграция → Настройка API.
+    // Адрес уведомлений для кабинета: https://skinolax.ru/api/cdekpay/notify
+    // Ключи вписываются только здесь, на сервере. Пока здесь «ЗАМЕНИТЬ», заказ приходит на почту без онлайн-оплаты.
+    'cdekpay' => [
+        'login' => 'ЗАМЕНИТЬ_логин_магазина',
+        'secret_key' => 'ЗАМЕНИТЬ_секретный_ключ',          // боевой ключ, валюта RUR
+        'test_secret_key' => 'ЗАМЕНИТЬ_тестовый_ключ',      // тестовый ключ, валюта TST
+        'test' => true,             // true — тестовые платежи (TST), false — настоящие (RUR)
+        'api_url' => 'https://secure.cdekfin.ru/merchant_api/',
+        'link_life_time' => 60,     // минут на оплату по ссылке; потом заказ в админке помечается «ссылка истекла»
+        'receipt' => true,          // true, если в кабинете включена отправка чеков: тогда передаётся список товаров
+        'vat' => 'vat10',           // vat_type в чеке: уточнить у бухгалтера
+        'payment_method' => 'full_prepayment',  // признак расчёта: при full_prepayment нужен чек полного расчёта при выдаче, уточнить у бухгалтера
+        'success_url' => 'https://skinolax.ru/cart.html?pay=success',
+        'fail_url' => 'https://skinolax.ru/cart.html?pay=fail',
+    ],
 ];

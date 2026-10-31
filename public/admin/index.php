@@ -86,6 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $msg = !empty($r['Success']) ? "Заказ {$o['id']}: " . ($a === 'confirm' ? 'оплата списана.' : 'оплата отменена.') : 'Т-Банк: ' . ($r['Message'] ?? '') . ' ' . ($r['Details'] ?? '');
             } catch (Throwable $e) { $msg = 'Т-Банк недоступен: ' . $e->getMessage(); }
         }
+    } elseif ($a === 'cdek_refund') {
+        // Полный возврат по CDEK Pay. Частичный возврат делается в личном кабинете CDEK Pay.
+        $o = skx_order_load((string)$_POST['order']);
+        $reason = trim(mb_substr((string)($_POST['reason'] ?? ''), 0, 200));
+        if (!$o || ($o['provider'] ?? '') !== 'cdekpay' || $o['status'] !== 'CONFIRMED' || empty($o['payment_id'])) $msg = 'Возврат для этого заказа недоступен.';
+        elseif ($reason === '') $msg = 'Укажите причину возврата.';
+        else {
+            $data = ['payment_id' => (int)$o['payment_id'], 'value_refund' => $o['amount'] * 100, 'reason' => $reason];
+            if (!empty($o['receipt'])) $data['receipt_details'] = $o['receipt'];
+            try {
+                [$code, $r] = skx_cdekpay_call('cancellation_requests', 'data', $data, $o['currency'] ?? 'RUR');
+                if ($code === 200) {
+                    $o['status'] = 'REFUND_REQUESTED';
+                    $o['history'][] = [date('c'), 'admin refund → ' . ($r['status'] ?? '') . " ($reason)"];
+                    skx_order_save($o);
+                    $msg = "Заказ {$o['id']}: возврат запрошен, статус придёт уведомлением CDEK Pay.";
+                } else $msg = "CDEK Pay: возврат не принят (HTTP $code" . ($code === 422 ? ', возврат по платежу невозможен' : '') . ').';
+            } catch (Throwable $e) { $msg = 'CDEK Pay недоступен: ' . $e->getMessage(); }
+        }
     }
     $_SESSION['msg'] = $msg;
     header('Location: ./' . (str_starts_with($a, 'promo') ? '#promo' : '#orders')); exit;
@@ -111,14 +130,17 @@ usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
 $st = SKX_STATUS;
 $orows = '';
 foreach (array_slice($files, 0, 100) as $file) {
-    $o = json_decode((string)file_get_contents($file), true);
-    $btn = $o['status'] === 'AUTHORIZED'
+    $o = skx_cdekpay_expire(json_decode((string)file_get_contents($file), true));
+    $btn = ($o['provider'] ?? 'tbank') === 'cdekpay' && $o['status'] === 'CONFIRMED'
+        ? '<form method="post" style="display:flex;gap:6px" onsubmit="return confirm(\'Вернуть покупателю всю сумму?\')">' . $hid . '<input type="hidden" name="order" value="' . $h($o['id']) . '">'
+        . '<input name="reason" required maxlength="200" placeholder="Причина возврата"><button class="ghost" name="action" value="cdek_refund">Вернуть</button></form>'
+        : ($o['status'] === 'AUTHORIZED'
         ? '<form method="post" style="display:inline">' . $hid . '<input type="hidden" name="order" value="' . $h($o['id']) . '"><button name="action" value="confirm">Списать</button></form> '
-        . '<form method="post" style="display:inline" onsubmit="return confirm(\'Отменить оплату?\')">' . $hid . '<input type="hidden" name="order" value="' . $h($o['id']) . '"><button class="ghost" name="action" value="cancel">Отменить</button></form>' : '';
+        . '<form method="post" style="display:inline" onsubmit="return confirm(\'Отменить оплату?\')">' . $hid . '<input type="hidden" name="order" value="' . $h($o['id']) . '"><button class="ghost" name="action" value="cancel">Отменить</button></form>' : '');
     $orows .= '<tr><td><b>' . $h($o['id']) . '</b><br>' . $h(date('d.m.Y H:i', strtotime($o['created']))) . '</td><td>' . $h(implode('; ', array_map(fn($i) => "{$i['name']} × {$i['qty']}", $o['items'])))
         . '</td><td>' . skx_rub((float)$o['amount']) . ($o['promo'] ? '<br><small>' . $h($o['promo']) . ' −' . skx_rub((float)$o['discount']) . '</small>' : '')
         . '</td><td>' . $h($o['name']) . '<br>' . $h($o['phone']) . '<br>' . $h($o['email']) . '</td><td>' . $h($o['delivery']) . ($o['address'] ? '<br>' . $h($o['address']) : '')
-        . '</td><td>' . $h($st[$o['status']] ?? $o['status']) . "</td><td>$btn</td></tr>";
+        . '</td><td>' . $h($st[$o['status']] ?? $o['status']) . '<br><small>' . $h(SKX_PROVIDERS[$o['provider'] ?? 'tbank'] ?? '') . "</small></td><td>$btn</td></tr>";
 }
 page('Админка СКИНОЛАКС', '<h1>Админка СКИНОЛАКС</h1><nav><a href="#promo">Промокоды</a><a href="#orders">Заказы</a>'
     . '<form method="post" style="margin-left:auto"><button class="ghost" name="logout" value="1">Выйти</button></form></nav>' . ($msg ? '<p class="msg">' . $h($msg) . '</p>' : '')
