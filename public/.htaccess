@@ -3,3 +3,10 @@
   Require all denied
 </FilesMatch>
 Options -Indexes
+
+# Постоянный адрес видеоинструкции для QR-кодов на новой упаковке: /video, /video/standart, /video/kompakt.
+# Часть после # сервер не видит, поэтому переадресуем на главную с якорем; флаг NE не даёт испортить #.
+RewriteEngine On
+RewriteRule ^video/?$ /#video [R=302,NE,L]
+RewriteRule ^video/standart/?$ /#video-standart [R=302,NE,L]
+RewriteRule ^video/kompakt/?$ /#video-kompakt [R=302,NE,L]
