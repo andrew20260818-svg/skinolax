@@ -60,6 +60,13 @@
   f.src=b.dataset.rutube+'?autoplay=1';f.title=b.dataset.title;f.allow='clipboard-write; autoplay; encrypted-media; fullscreen; picture-in-picture';f.allowFullscreen=true;
   f.addEventListener('load',()=>{const play=()=>f.contentWindow?.postMessage(JSON.stringify({type:'player:play',data:{}}),'*');play();setTimeout(play,800);});
   b.replaceWith(f);track('video_play');}));
+ // Ссылки на видеоинструкцию, в том числе QR-коды на упаковке со старого сайта.
+ // Там видео открывалось по якорям Fancybox: #gallery_3-1 и #gallery_1-1 — «Стандарт» (RuTube),
+ // #gallery_1-2 и #gallery_3-2 — «Компакт». На новом сайте эти якоря и #video ведут к блоку видео на главной.
+ const VIDEO_LINKS={'video':'st','video-standart':'st','video-kompakt':'co','gallery_1-1':'st','gallery_1-2':'co','gallery_1-3':'st','gallery_3-1':'st','gallery_3-2':'co'};
+ const openVideoFromLink=()=>{const key=decodeURIComponent(location.hash.slice(1)),tab=VIDEO_LINKS[key],sec=document.querySelector('#video');
+  if(!tab||!sec)return;sec.querySelector('#tab-'+tab)?.click();sec.scrollIntoView({block:'start'});track('video_link',key);};
+ openVideoFromLink();addEventListener('hashchange',openVideoFromLink);
  // Пауза других плееров при переключении вкладок
  // Слои механизма
  document.querySelectorAll('.layers').forEach(l=>{const items=l.querySelectorAll('.layer-legend li');
