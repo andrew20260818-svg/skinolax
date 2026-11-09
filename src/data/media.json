@@ -1,0 +1,129 @@
+{
+ "_comment": "Каталог картинок товара. Исходники лежат в media/<папка>/, готовые файлы делает scripts/build-images.mjs (npm run images). Подробно: media/README.md",
+ "roles": {
+  "card": {
+   "widths": [
+    240,
+    360,
+    480,
+    720,
+    960
+   ],
+   "sizes": "(max-width: 767px) 70vw, 340px",
+   "fallback": 480
+  },
+  "cart": {
+   "widths": [
+    80,
+    160,
+    240
+   ],
+   "sizes": "80px",
+   "fallback": 160
+  },
+  "showcase": {
+   "widths": [
+    480,
+    800,
+    1200,
+    1600
+   ],
+   "sizes": "(max-width: 1344px) 100vw, 1300px",
+   "fallback": 1200
+  }
+ },
+ "images": {
+  "bag-standard": {
+   "src": "packs/bag-standard.png",
+   "alt": "Упаковка СКИНОЛАКС Стандарт",
+   "bg": "transparent",
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "bag-compact": {
+   "src": "packs/bag-compact.png",
+   "alt": "Упаковка СКИНОЛАКС Компакт",
+   "bg": "transparent",
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "box-x1": {
+   "src": "packs/box-x1.png",
+   "alt": "Коробка СКИНОЛАКС, 1 пакет",
+   "bg": "white",
+   "count": 1,
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "box-x3": {
+   "src": "packs/box-x3.png",
+   "alt": "Коробка СКИНОЛАКС, 3 пакета",
+   "bg": "white",
+   "count": 3,
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "box-x5": {
+   "src": "packs/box-x5.png",
+   "alt": "Коробка СКИНОЛАКС, 5 пакетов",
+   "bg": "white",
+   "count": 5,
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "box-x10": {
+   "src": "packs/box-x10.png",
+   "alt": "Коробка СКИНОЛАКС, 10 пакетов",
+   "bg": "white",
+   "count": 10,
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "box-x50": {
+   "src": "packs/box-x50.png",
+   "alt": "Коробка СКИНОЛАКС, 50 пакетов",
+   "bg": "white",
+   "count": 50,
+   "roles": [
+    "card",
+    "cart"
+   ]
+  },
+  "vitrina-apteka": {
+   "src": "showcase/vitrina-apteka.png",
+   "alt": "Аптечная выкладка СКИНОЛАКС: стенд с упаковками на 1, 3, 5, 10 и 50 пакетов",
+   "bg": "photo",
+   "roles": [
+    "showcase"
+   ]
+  }
+ },
+ "sku": {
+  "standard-100": "bag-standard",
+  "compact-100": "bag-compact"
+ },
+ "line": {
+  "standard": "bag-standard",
+  "compact": "bag-compact"
+ },
+ "showcase": [
+  {
+   "id": "partnery-vitrina",
+   "image": "vitrina-apteka",
+   "page": "partnery.html",
+   "note": "Атмосферная вставка в блоке «Что даёт МЕНОРА-МЕД партнёру», не главный визуал"
+  }
+ ]
+}

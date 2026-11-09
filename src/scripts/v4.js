@@ -3,7 +3,10 @@
 (()=>{'use strict';
  const root=document.documentElement;root.classList.remove('no-js');root.classList.add('js');
  const SHOP=__SHOP__,PRICE=SHOP.price,VAT=SHOP.vat,FREE=SHOP.free_delivery_from,KEY='skinolax-cart-v5',NAMES={};[['standard','Стандарт',[100,200]],['compact','Компакт',[25,50,100,150]]].forEach(([k,l,ss])=>ss.forEach(z=>NAMES[k+'-'+z]=`СКИНОЛАКС ${l} ${z} см²`));
- const PIC=k=>'assets/pack-'+k.split('-')[0]+'.png';
+ // Картинки корзины: __MEDIA__ подставляет сборщик из src/data/media.json (SKU → линейка → без картинки)
+ const MEDIA=__MEDIA__;
+ const PIC=k=>{const m=MEDIA.items[k]||MEDIA.items[k.split('-')[0]];if(!m)return '<span class="pk-none" aria-hidden="true"></span>';const z=MEDIA.sizes;
+  return `<picture class="pk"><source type="image/avif" srcset="${m.a}" sizes="${z}"><source type="image/webp" srcset="${m.w}" sizes="${z}"><img${m.bg==='white'?' class="pk-white"':''} src="${m.s}" srcset="${m.f}" sizes="${z}" width="${m.W}" height="${m.H}" alt="" loading="lazy" decoding="async"></picture>`;};
  const rub=v=>new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(v)+' ₽';
  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const ss={get:k=>{try{return sessionStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{sessionStorage.setItem(k,v)}catch{}}};
@@ -35,7 +38,7 @@
  function render(){const c=load(),t=sum(c);
   document.querySelectorAll('[data-cart-count]').forEach(x=>x.textContent=t.q);
   const list=document.querySelector('[data-cart-list]');
-  if(list){document.querySelector('[data-cart-sum]')?.closest('aside')?.toggleAttribute('hidden',!t.q);list.innerHTML=t.q?Object.entries(c).map(([k,n])=>`<div class="cart-row"><img src="${PIC(k)}" alt=""><div><b>${NAMES[k]}</b><br><small>${rub(PRICE)} за упаковку</small></div><span class="stepper"><button type="button" data-cq="${k}" data-d="-1" aria-label="Меньше">−</button><input type="number" min="1" max="9999" value="${n}" data-cset="${k}" aria-label="Количество ${NAMES[k]}"><button type="button" data-cq="${k}" data-d="1" aria-label="Больше">+</button></span><b>${rub(n*PRICE)}</b><button type="button" class="remove" data-crm="${k}">Удалить</button></div>`).join(''):`<div class="empty-cart"><h3>Корзина пуста</h3><p>СКИНОЛАКС 100 см² — ${rub(PRICE)} за 1 пакет, в линейках Стандарт и Компакт.</p><a class="btn" href="shop.html">Выбрать покрытие</a></div>`;
+  if(list){document.querySelector('[data-cart-sum]')?.closest('aside')?.toggleAttribute('hidden',!t.q);list.innerHTML=t.q?Object.entries(c).map(([k,n])=>`<div class="cart-row">${PIC(k)}<div><b>${NAMES[k]}</b><br><small>${rub(PRICE)} за упаковку</small></div><span class="stepper"><button type="button" data-cq="${k}" data-d="-1" aria-label="Меньше">−</button><input type="number" min="1" max="9999" value="${n}" data-cset="${k}" aria-label="Количество ${NAMES[k]}"><button type="button" data-cq="${k}" data-d="1" aria-label="Больше">+</button></span><b>${rub(n*PRICE)}</b><button type="button" class="remove" data-crm="${k}">Удалить</button></div>`).join(''):`<div class="empty-cart"><h3>Корзина пуста</h3><p>СКИНОЛАКС 100 см² — ${rub(PRICE)} за 1 пакет, в линейках Стандарт и Компакт.</p><a class="btn" href="shop.html">Выбрать покрытие</a></div>`;
    document.querySelector('#order-form')?.toggleAttribute('hidden',!t.q);}
   const d=ship(t.p);
   document.querySelectorAll('[data-cart-sum]').forEach(x=>{x.innerHTML=`<div class="row"><span>Товары, ${t.q} шт.</span><span>${rub(t.s)}</span></div>${t.d?`<div class="row promo-row-sum"><span>Промокод ${esc(promo.code)}</span><span>−${rub(t.d)}</span></div>`:''}<div class="row"><span>${d.label}</span><span>${d.cost}</span></div><div class="row total"><span>К оплате</span><span>${rub(t.p)}</span></div><p class="small">в т. ч. НДС ${VAT} %: ${rub(t.vat)}</p>${d.note?`<p class="ship-note">${d.note}</p>`:''}<p class="small">Доставку и самовывоз подтверждает менеджер после согласования.</p>`;});

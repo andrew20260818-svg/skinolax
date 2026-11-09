@@ -1,0 +1,17 @@
+---
+// Картинка упаковки: <picture> с AVIF, WebP и запасным PNG/JPEG, srcset под ретину, размеры против сдвига вёрстки.
+// <PackImg id="box-x10" />            — по имени картинки из src/data/media.json
+// <PackImg sku="compact-100" />        — по товару (SKU → линейка)
+// role: card (карточка товара, по умолчанию) · cart (миниатюра) · showcase (широкие витринные картинки)
+// priority: картинка на первом экране — грузится сразу и с высоким приоритетом
+import { picture, imageForSku } from '../lib/media';
+
+interface Props { id?: string; sku?: string; role?: 'card' | 'cart' | 'showcase'; alt?: string; class?: string; priority?: boolean; sizes?: string }
+const { id, sku, role = 'card', alt, class: cls, priority = false, sizes } = Astro.props;
+const key = id ?? (sku ? imageForSku(sku) : undefined);
+if (!key) throw new Error(`PackImg: нет картинки для ${sku ?? 'пустого id'}`);
+const p = picture(key, role);
+const s = sizes ?? p.sizes;
+const imgClass = [cls, p.bg === 'white' && 'pk-white'].filter(Boolean).join(' ') || undefined;
+---
+<picture class="pk"><source type="image/avif" srcset={p.avif} sizes={s}><source type="image/webp" srcset={p.webp} sizes={s}><img class={imgClass} src={p.src} srcset={p.fallbackSet} sizes={s} alt={alt ?? p.alt} width={p.width} height={p.height} loading={priority ? 'eager' : 'lazy'} decoding="async" fetchpriority={priority ? 'high' : undefined}></picture>
