@@ -482,3 +482,15 @@ body[data-page=cart] .mobile-buy{display:none}
 /* Обложки видеоинструкций: заголовок слева, поэтому кнопка ▶ стоит на упаковке (центр пакета ≈71 % ширины), а не по центру */
 [data-video] .rt-facade .play{position:absolute;left:71%;top:50%;transform:translate(-50%,-50%)}
 [data-video] .rt-facade:hover .play{transform:translate(-50%,-50%) scale(1.06)}
+/* Картинки товара (компонент PackImg, корзина): <picture> не влияет на раскладку, правила для img работают как раньше */
+picture.pk{display:contents}
+/* Упаковки на белом фоне: белое сливается с подложкой, без поворота и тени по прямоугольнику */
+img.pk-white{mix-blend-mode:multiply;transform:none!important;filter:none!important}
+.cart-row img{height:auto;max-height:72px;object-fit:contain}
+.pk-none{display:block;width:72px;height:48px;border-radius:12px;background:var(--sk-ice)}
+/* Атмосферная вставка (аптечная витрина): широкая полоса после основного блока, без кнопок и текста поверх */
+.mood-band{margin:36px 0 0;position:relative}
+.mood-band img{width:100%;aspect-ratio:20/9;object-fit:cover;object-position:50% 30%;border-radius:var(--r-xl);box-shadow:var(--shadow)}
+.mood-band::after{content:"";position:absolute;inset:0 0 auto;aspect-ratio:20/9;border-radius:var(--r-xl);pointer-events:none;background:linear-gradient(90deg,rgba(238,250,253,.0) 60%,rgba(238,250,253,.35) 100%)}
+.mood-band figcaption{margin-top:10px;font-size:14px;color:var(--sk-ink-2,#28626E);text-align:right}
+@media (max-width:767px){.mood-band img,.mood-band::after{aspect-ratio:16/10}.mood-band img{object-position:50% 40%}.mood-band figcaption{text-align:left}}

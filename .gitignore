@@ -4,3 +4,6 @@ dist/
 .DS_Store
 # PDF-документы (≈75 МБ) в репозиторий не кладём: копируются в public/documents перед сборкой, см. README
 public/documents/**/*.pdf
+# Картинки товара собирает scripts/build-images.mjs из media/ (npm run images), в репозиторий не кладём
+public/assets/media/
+src/data/media.generated.json

@@ -4,12 +4,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "build": "node scripts/check-documents.mjs && astro build",
+    "dev": "node scripts/build-images.mjs && astro dev",
+    "build": "node scripts/check-documents.mjs && node scripts/build-images.mjs && astro build",
     "preview": "astro preview",
+    "images": "node scripts/build-images.mjs",
     "check:docs": "node scripts/check-documents.mjs"
   },
   "dependencies": {
     "astro": "7.3.8"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
   }
 }
