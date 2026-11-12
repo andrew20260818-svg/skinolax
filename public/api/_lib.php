@@ -195,7 +195,7 @@ function skx_receipt_items(array $items, int $goodsKop, int $amountKop, string $
         $unit = intdiv($pay, $q);
         $rest = $pay - $unit * $q;
         $mk = fn($price, $qty) => ['Name' => mb_substr($it['name'], 0, 128), 'Price' => $price, 'Quantity' => $qty, 'Amount' => $price * $qty,
-            'Tax' => $tax, 'PaymentMethod' => 'full_prepayment', 'PaymentObject' => 'commodity'];
+            'Tax' => $tax, 'PaymentMethod' => 'full_payment', 'PaymentObject' => 'commodity'];
         if ($rest === 0) $out[] = $mk($unit, $q);
         else { if ($q > 1) $out[] = $mk($unit, $q - 1); $out[] = $mk($unit + $rest, 1); }
     }
