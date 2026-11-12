@@ -199,6 +199,28 @@ function skx_receipt_items(array $items, int $goodsKop, int $amountKop, string $
         if ($rest === 0) $out[] = $mk($unit, $q);
         else { if ($q > 1) $out[] = $mk($unit, $q - 1); $out[] = $mk($unit + $rest, 1); }
     }
+    return skx_receipt_supplier($out);
+}
+
+/* Данные поставщика в каждой строке чека (Items[].SupplierInfo, по желанию Items[].AgentData).
+   Т-Чеки берёт название поставщика из запроса; если его не передать, подставляет своё, где прямые кавычки
+   превращаются в &quot;. Поэтому название передаётся с кавычками-ёлочками и без HTML-экранирования.
+   Настройки — в config.php, блок 'tbank': 'supplier_name', 'supplier_inn', 'supplier_phones' (массив, +7…),
+   'agent_sign' (признак агента, если его потребует Т-Банк; пусто — AgentData не передаётся).
+   'supplier_name' => '' выключает передачу данных поставщика. */
+function skx_receipt_supplier(array $out): array {
+    $tb = skx_config()['tbank'] ?? [];
+    $name = trim(str_replace('"', '', preg_replace('/"([^"]*)"/u', '«$1»', html_entity_decode((string)($tb['supplier_name'] ?? 'ООО «МЕНОРА-МЕД»'), ENT_QUOTES | ENT_HTML5, 'UTF-8'))));
+    $inn = preg_replace('/\D/', '', (string)($tb['supplier_inn'] ?? '9702037110'));
+    if ($name === '' || $inn === '') return $out;
+    $phones = array_values(array_filter(array_map(fn($p) => '+' . preg_replace('/^8(\d{10})$/', '7$1', preg_replace('/\D/', '', (string)$p)), (array)($tb['supplier_phones'] ?? [])), fn($p) => strlen($p) >= 12));
+    $sup = ['Name' => mb_substr($name, 0, 239 - 4 * count($phones)), 'Inn' => $inn];
+    if ($phones) $sup['Phones'] = $phones;
+    $agent = trim((string)($tb['agent_sign'] ?? ''));
+    foreach ($out as $k => $row) {
+        $out[$k]['SupplierInfo'] = $sup;
+        if ($agent !== '') $out[$k]['AgentData'] = ['AgentSign' => $agent];
+    }
     return $out;
 }
 
